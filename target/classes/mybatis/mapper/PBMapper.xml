@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Pb">
+  <select id="selectPhotoBoardList" parameterType="pbVO" resultType="pbVO">
+   select * from(
+   select rownum cnt, pb.* from(
+   select *from photo_board order by pb_num desc
+   ) pb where rownum &lt;= #{page.endNum}) where cnt &gt;=#{page.startNum}
+  </select>
+  <select id="selectPhotoBoard" resultType="pbVO">
+    select *from photo_board where pb_num=#{pbNum}
+  </select>
+  <select id="totalCntPhotoBoard" resultType="int">
+    select count(*) from photo_board
+  </select>
+  <insert id="insertPhotoBoard" parameterType="pbVO" >
+  	insert into photo_board(
+  	pb_num,pb_title,pb_content,
+  	<if test="pbImgPath!=null">
+  	pb_img_path,
+  	</if>
+  	credat,cretim
+  	) 
+  	values(
+  	seq_pb_num.nextval, #{pbTitle},#{pbContent}
+  	<if test="pbImgPath!=null">
+  	,#{pbImgPath}
+  	</if>
+  	,to_char(sysdate,'YYYYMMDD'),to_char(sysdate,'HH24MIss')
+  	) 
+  
+  </insert>
+  
+  <update id="updatePhotoBoard" parameterType="pbVO">
+  	update photo_board 
+  	<trim prefix="SET" suffixOverrides=",">
+		<if test="pbContent != null">pb_content=#{pbContent},</if>
+		<if test="pbTitle != null">pb_title=#{pbTitle},</if>
+		<if test="pbImgPath != null">pb_img_path=#{pbImgPath},</if>
+	</trim>
+	where pb_num=#{pbNum}
+  </update>
+  <delete id="deletePhotoBoard" parameterType="pbVO">
+   delete photo_board where pb_num=#{pbNum}
+  </delete>
+</mapper>
